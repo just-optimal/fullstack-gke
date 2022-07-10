@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: fullstack-k8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: app
+          image: gcr.io/fullstack-k8s/app
+          ports:
+            - containerPort: 8080
+              name: app-port
+          env:
+            - name: PORT
+              value: "8080"
+            - name: API_PATH
+              value: "http://api"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+spec:
+  type: ClusterIP
+  selector:
+    app: app
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
